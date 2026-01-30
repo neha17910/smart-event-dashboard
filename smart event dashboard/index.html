@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Event Dashboard</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#5fd0c9,#2e8aa7);
+}
+
+/* ===== HEADER ===== */
+.header{
+    text-align:center;
+    color:white;
+    font-size:32px;
+    font-weight:700;
+    padding:22px;
+    letter-spacing:.5px;
+}
+
+/* ===== MAIN GRID ===== */
+.wrapper{
+    width:1100px;
+    max-width:95%;
+    margin:auto;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns: 420px 1fr;
+    gap:22px;
+}
+
+/* ===== CARDS ===== */
+.card{
+    background:white;
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+}
+
+.card h2{
+    margin-top:0;
+    color:#5a6fd6;
+    font-size:20px;
+}
+
+/* ===== FORM ===== */
+label{
+    font-size:13px;
+    color:#666;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:11px;
+    margin-top:6px;
+    margin-bottom:14px;
+    border-radius:8px;
+    border:1px solid #d8d8d8;
+    font-size:14px;
+}
+
+textarea{
+    height:90px;
+    resize:none;
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+    background:#55b7c9;
+    border:none;
+    color:white;
+    padding:12px;
+    border-radius:9px;
+    font-size:14px;
+    cursor:pointer;
+    width:100%;
+}
+
+.btn:hover{
+    background:#3fa3b5;
+}
+
+.row-btn{
+    display:flex;
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.row-btn button{
+    flex:1;
+}
+
+/* ===== EVENTS LIST ===== */
+#eventList{
+    color:#777;
+    font-size:14px;
+    padding:12px 4px;
+}
+
+.event{
+    background:#f4f8ff;
+    border-radius:9px;
+    padding:12px;
+    margin-bottom:12px;
+}
+
+.event h4{
+    margin:0 0 5px 0;
+}
+
+.small{
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:6px;
+    border:none;
+    background:#e04f4f;
+    color:white;
+    cursor:pointer;
+    margin-top:6px;
+}
+
+/* ===== DOM BOX ===== */
+.dom{
+    margin-top:24px;
+}
+
+.keybox{
+    background:#f5f5f7;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:14px;
+    color:#444;
+    font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">🎯 Smart Event Dashboard</div>
+
+<div class="wrapper">
+
+<div class="grid">
+
+<!-- ===== LEFT CARD ===== -->
+<div class="card">
+<h2>Add New Event</h2>
+
+<label>Event Title:</label>
+<input id="title">
+
+<label>Event Date:</label>
+<input type="date" id="date">
+
+<label>Category:</label>
+<select id="category">
+<option>Conference</option>
+<option>Workshop</option>
+<option>Seminar</option>
+<option>Competition</option>
+</select>
+
+<label>Description:</label>
+<textarea id="desc"></textarea>
+
+<button class="btn" onclick="addEvent()">Add Event</button>
+</div>
+
+<!-- ===== RIGHT CARD ===== -->
+<div class="card">
+<h2>My Events</h2>
+
+<div class="row-btn">
+<button class="btn" onclick="clearEvents()">Clear All Events</button>
+<button class="btn" onclick="addSample()">Add Sample Events</button>
+</div>
+
+<div id="eventList">
+No events yet. Add your first event!
+</div>
+
+</div>
+</div>
+
+<!-- ===== DOM CARD ===== -->
+<div class="card dom">
+<h2>DOM Manipulation Demo</h2>
+<div class="keybox" id="keyBox">
+You Pressed: Meta
+</div>
+</div>
+
+</div>
+
+<script>
+
+/* ===== STORAGE ===== */
+let events = JSON.parse(localStorage.getItem("events") || "[]");
+
+function save(){
+    localStorage.setItem("events", JSON.stringify(events));
+}
+
+/* ===== ADD EVENT ===== */
+function addEvent(){
+    const t = title.value.trim();
+    const d = date.value;
+    const c = category.value;
+    const ds = desc.value;
+
+    if(!t || !d){
+        alert("Title & Date required");
+        return;
+    }
+
+    events.push({t,d,c,ds});
+    save();
+    render();
+
+    title.value="";
+    date.value="";
+    desc.value="";
+}
+
+/* ===== DELETE ===== */
+function del(i){
+    events.splice(i,1);
+    save();
+    render();
+}
+
+/* ===== CLEAR ===== */
+function clearEvents(){
+    events=[];
+    save();
+    render();
+}
+
+/* ===== SAMPLE ===== */
+function addSample(){
+    events.push(
+        {t:"Tech Conference", d:"2026-02-15", c:"Conference", ds:"Industry Experts"},
+        {t:"AI Workshop", d:"2026-03-10", c:"Workshop", ds:"Hands-on Session"}
+    );
+    save();
+    render();
+}
+
+/* ===== RENDER ===== */
+function render(){
+    const box=document.getElementById("eventList");
+
+    if(events.length===0){
+        box.innerHTML="No events yet. Add your first event!";
+        return;
+    }
+
+    box.innerHTML="";
+
+    events.forEach((e,i)=>{
+        box.innerHTML += `
+        <div class="event">
+        <h4>${e.t}</h4>
+        <div><b>Date:</b> ${e.d}</div>
+        <div><b>Category:</b> ${e.c}</div>
+        <div>${e.ds}</div>
+        <button class="small" onclick="del(${i})">Delete</button>
+        </div>`;
+    });
+}
+
+/* ===== DOM KEY DEMO ===== */
+document.addEventListener("keydown",e=>{
+    keyBox.innerText="You Pressed: " + e.key;
+});
+
+render();
+
+</script>
+
+</body>
+</html>
